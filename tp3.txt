@@ -1,0 +1,64 @@
+import java.io.*;
+import java.net.*;
+
+
+public class Emetteur {
+
+    public static void main(String[] args) throws IOException {
+
+        // Création de la socket
+        DatagramSocket socket = new DatagramSocket();
+//datagram pour envoyer les paquets udp
+        // Lecture du fichier à envoyer
+        File file = new File("k.txt");
+        FileInputStream fis = new FileInputStream(file);
+
+        // Envoi du fichier en plusieurs paquets
+        byte[] buffer = new byte[1024];
+        DatagramPacket packet;
+        InetAddress address = InetAddress.getByName("localhost");
+        int port = 4445;
+
+        while (fis.read(buffer) != -1) { 
+        	//buffer pour stoker le contenue de fichier 
+            packet = new DatagramPacket(buffer, buffer.length, address, port);
+            socket.send(packet);
+            buffer = new byte[1024];
+        }
+
+        // Fermeture de la socket et du fichier
+        fis.close();
+        socket.close();
+    }
+}
+
+
+
+
+import java.io.*;
+import java.net.*;
+
+public class Recepteur {
+
+    public static void main(String[] args) throws IOException {
+
+        // Création de la socket
+        DatagramSocket socket = new DatagramSocket();
+
+        // Réception des paquets et écriture dans le fichier
+        byte[] buffer = new byte[1024];
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        FileOutputStream fos = new FileOutputStream("‪k.txt");
+        while (true) {
+            socket.receive(packet);
+            fos.write(packet.getData(), 0, packet.getLength());
+            if (packet.getLength() < buffer.length) {
+                break;
+            }
+        }
+
+        // Fermeture de la socket et du fichier
+        fos.close();
+        socket.close();
+    }
+}
